@@ -33,9 +33,8 @@ System Arduino Login Wifi & MQTT messages to prae.
 
 - [x] [PubSubClient](https://github.com/knolleary/pubsubclient) Author: Nick O'Leary
 
-- [x] [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
+- [x] [ArduinoJson version::5 ](https://github.com/bblanchon/ArduinoJson)
 Author: Benoit Blanchon
 
 ## Deployment System
----
 2. Deploy File code :: [Smart-wifi.ino]() on Node-MCU.

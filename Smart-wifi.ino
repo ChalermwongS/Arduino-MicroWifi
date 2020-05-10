@@ -1,19 +1,29 @@
-//library
+//library button flash.
+#include <EasyButton.h>
+//library WifiManager
 #include <ESP8266WiFi.h>         
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <WiFiManager.h>         
-#include <ArduinoJson.h>     
+#include <WiFiManager.h>   
+//library Json
+#include <ArduinoJson.h>  
+//library MQTT   
 #include <PubSubClient.h>
 
-// delay
+
+//Variable
+/// button flash
+#define BUTTON_PIN 0
+EasyButton button(BUTTON_PIN);
+
+/// delay
 #define D0 16   
 #define LED D0  
 
-//flag for saving data
+/// flag for saving data
 bool shouldSaveConfig = false;
 
-//define your default values here, if there are different values in config.json, they are overwritten.
+/// define your default values here, if there are different values in config.json, they are overwritten.
 #define mqtt_server       "www.km1.io"
 #define mqtt_port         "1883"
 #define mqtt_user         "toon"
@@ -23,22 +33,40 @@ bool shouldSaveConfig = false;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-//callback notifying us of the need to save config
+//Function
+/// button flash is pressed.
+void onPressed() {
+    //clean FS for testing 
+    SPIFFS.format();
+    
+    //reset WifiManager 
+    wifiManager.resetSettings();
+
+    //reboot board
+    ESP.restart();
+}
+
+/// callback notifying us of the need to save config
 void saveConfigCallback () {
   Serial.println("Should save config");
   shouldSaveConfig = true;
 }
 
-
+//System Startup
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   Serial.println();
+  
+  // Initialize the button.
+  button.begin();
+  
+  // Add the callback function to be called when the button is pressed.
+  button.onPressed(onPressed);
+  
   //Swicts
   pinMode(LED,OUTPUT);
-  //clean FS for testing 
-  //SPIFFS.format();
-
+  
   //read configuration from FS json
   Serial.println("mounting FS...");
 
@@ -90,8 +118,6 @@ void setup() {
   //Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
 
-  // Reset Wifi settings for testing  
-  wifiManager.resetSettings();
 
   //set config save notify callback
   wifiManager.setSaveConfigCallback(saveConfigCallback);
@@ -102,19 +128,11 @@ void setup() {
   wifiManager.addParameter(&custom_mqtt_user);
   wifiManager.addParameter(&custom_mqtt_pass);
   wifiManager.addParameter(&custom_mqtt_topic);
-  //reset settings - for testing
-  wifiManager.resetSettings();
+
 
   //if it does not connect it starts an access point with the specified name
-  //here  "AutoConnectAP"
-  //and goes into a blocking loop awaiting configuration
-  if (!wifiManager.autoConnect("Smart_PlugIN", "vsalab2018")) {
-    Serial.println("failed to connect and hit timeout");
-    delay(3000);
-    //reset and try again, or maybe put it to deep sleep
-    ESP.reset();
-    delay(5000);
-  }
+  //here  "Smart_PlugIN"
+  wifiManager.autoConnect("Smart_PlugIN", "vsalab2020")
 
   //if you get here you have connected to the WiFi
   Serial.println("connected...yeey :)");
@@ -175,6 +193,7 @@ void reconnect() {
   }
 }
 
+// on/off delay
 void callback(char* topic, byte* payload, unsigned int length) {
  String msg = "";
  int i=0;
@@ -191,7 +210,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
  }
 }
 
+//System Running
 void loop() {
+  // Continuously read the status of the button. 
+  button.read();
+
   // put your main code here, to run repeatedly:
   if (!client.connected())
   {
