@@ -75,14 +75,14 @@ System Arduino Login Wifi & MQTT messages to prae.
      ```
 
 ## System Status
- [x] LED Status
+- [x] LED Status
  ```
   + 1: LED on     ==  not connect wifi.
   + 2: LED blink  ==  reconnect wifi or network not available.
   + 3: LED off    ==  connect wifi success.
  ```
 
- [x] Reset System
+- [x] Reset System
  ```
     + 1. Wifi not connect or worng system not start.    
     - Solution:: Reconnect hostpotwifi.
