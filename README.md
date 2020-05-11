@@ -37,3 +37,56 @@ System Arduino Login Wifi & MQTT messages to prae.
 
 ## Deployment System
 2. Deploy File code :: [Smart-wifi.ino]() on Node-MCU.
+
+   - Function WifiManager on Router :: edit work.
+        ```
+        // used defalt not wifi login non-password
+        wifiManager.autoConnect("Smart_PlugIN");
+
+
+        //used Router wifi login password
+        wifiManager.autoConnect("Smart_PlugIN","Password");
+        ```
+
+   - Function Callback MQTT :: edit work conditional.
+     ```
+        void callback(char* topic, byte* payload, unsigned int length) 
+        {
+            String msg = "";
+            int i=0;
+
+            //read massage. 
+            while (i<length) msg += (char)payload[i++];
+
+            // conditional
+            if (msg == "on" or msg == "ON" or msg == "1") 
+            {
+                client.publish(mqtt_topic,"Switch-ON"); 
+                digitalWrite(LED,HIGH);
+                return;
+            }
+            else if(msg == "off" or msg == "OFF" or msg == "0")
+            {
+                client.publish(mqtt_topic,"Switch-OFF"); 
+                digitalWrite(LED,LOW);
+                return;
+            }
+        }
+     ```
+
+## System Status
+ [x] LED Status
+ ```
+  + 1: LED on     ==  not connect wifi.
+  + 2: LED blink  ==  reconnect wifi or network not available.
+  + 3: LED off    ==  connect wifi success.
+ ```
+
+ [x] Reset System
+ ```
+    + 1. Wifi not connect or worng system not start.    
+    - Solution:: Reconnect hostpotwifi.
+    
+    + 2. User/password mqtt worng system.    
+    - Solution:: Long press button flash.
+ ```
